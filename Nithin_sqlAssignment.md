@@ -222,12 +222,14 @@ ORDER BY num_transactions DESC;
 > 13. List customers with high aggregate account balances, along with their account types.
 
 ```sql
-SELECT c.customer_id, a.account_type, SUM(a.balance) AS total_balance
-FROM Customers c
-JOIN Accounts a ON c.customer_id = a.customer_id
-GROUP BY c.customer_id, a.account_type
-HAVING SUM(a.balance) > 10000
-order by total_balance desc
+select
+      CONCAT(first_name,' ',last_name) as name,balance,account_type
+from
+     Customers
+join
+    Accounts on Customers.customer_id=Accounts.customer_id
+order by
+        balance desc;
 ```
 
 ![q13](./images/q13.png)
@@ -235,10 +237,19 @@ order by total_balance desc
 > 14. Identify and list duplicate transactions based on transaction amount, date, and account.
 
 ```sql
-SELECT transaction_id, account_id, amount, transaction_date, COUNT(*) AS duplicate_count
-FROM Transactions
-GROUP BY transaction_id,account_id, amount, transaction_date
-HAVING COUNT(*) > 1;
+SELECT *
+FROM Transactions t1
+INNER JOIN (
+    SELECT amount, transaction_date, account_id
+    FROM Transactions
+    GROUP BY amount, transaction_date, account_id
+    HAVING COUNT(*) > 1
+) AS duplicates
+ON t1.amount = duplicates.amount
+   AND t1.transaction_date = duplicates.transaction_date
+   AND t1.account_id = duplicates.account_id
+ORDER BY t1.transaction_date, t1.account_id, t1.amount;
+
 ```
 
 ![q14](./images/q14.png)

@@ -188,33 +188,30 @@ ORDER BY num_transactions DESC;
 
 -- 13. List customers with high aggregate account balances, along with their account types.
 
--- mistake
-SELECT
-  c.first_name,
-  c.last_name,
-  a.account_type,
-  SUM(a.balance) AS total_balance
-FROM Customers c
-JOIN Accounts a ON c.customer_id = a.customer_id
-GROUP BY c.customer_id, a.account_type
-HAVING SUM(a.balance) > 20000
-ORDER BY total_balance DESC;
+select
+      CONCAT(first_name,' ',last_name) as name,balance,account_type
+from
+     Customers
+join
+    Accounts on Customers.customer_id=Accounts.customer_id
+order by
+        balance desc;
 
 -- 14. Identify and list duplicate transactions based on transaction amount, date, and account.
 
--- mistake
-SELECT
-  t1.transaction_id AS duplicate_transaction_id,
-  t1.account_id,
-  t1.amount,
-  t1.transaction_date
+SELECT *
 FROM Transactions t1
-JOIN Transactions t2
-  ON t1.account_id = t2.account_id
-  AND t1.amount = t2.amount
-  AND t1.transaction_date = t2.transaction_date
-  AND t1.transaction_id < t2.transaction_id
-ORDER BY t1.account_id, t1.transaction_date;
+INNER JOIN (
+    SELECT amount, transaction_date, account_id
+    FROM Transactions
+    GROUP BY amount, transaction_date, account_id
+    HAVING COUNT(*) > 1
+) AS duplicates
+ON t1.amount = duplicates.amount
+   AND t1.transaction_date = duplicates.transaction_date
+   AND t1.account_id = duplicates.account_id
+ORDER BY t1.transaction_date, t1.account_id, t1.amount;
+
 
 -- 15. Calculate the total balance for each account type, including a subquery within the SELECT clause.
 
