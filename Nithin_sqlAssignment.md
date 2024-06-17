@@ -226,7 +226,8 @@ SELECT c.customer_id, a.account_type, SUM(a.balance) AS total_balance
 FROM Customers c
 JOIN Accounts a ON c.customer_id = a.customer_id
 GROUP BY c.customer_id, a.account_type
-HAVING SUM(a.balance) > 10000;
+HAVING SUM(a.balance) > 10000
+order by total_balance desc
 ```
 
 ![q13](./images/q13.png)
